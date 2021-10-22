@@ -2,7 +2,7 @@
 
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 4000;
 const Pokedex = require("pokedex-promise-v2");
 const P = new Pokedex();
 
@@ -50,14 +50,58 @@ app.get("/pokemon/get/:id", async (req, res) => {
   info.then((result) => {
     res.send(result);
   });
-  info.catch((err) => {
+  info.catch(() => {
     res.status(404);
-    res.send("404");
+    res.send(`404 - not found pokemon with the id/name of ${parseInt(req.params.id)}`);
   });
 
   // console.log(info);
   // res.send(info);
 });
+
+app.get("/pokemon/:query", async (req, res) => {
+  let info = getPokemonByNameFromAPI(req.params.query);
+  info.then((result) => {
+    res.send(result);
+  });
+  info.catch(() => {
+    res.status(404);
+    res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
+  });
+
+  // console.log(info);
+  // res.send(info);
+});
+app.put("/pokemon/catch/:id", async (req, res) => {
+  //   let info = getPokemonByNameFromAPI(req.params.id);
+  //   info.then((result) => {
+  //     catchPokemon(req.params.id, result, "nitsan");
+  //     res.send(result);
+  //   });
+  //   info.catch(() => {
+  //     res.status(404);
+  //     res.send(`404 - not found pokemon with the id/name of ${req.params.id}`);
+  //   });
+  let info = getPokemonByNameFromAPI(req.params.query);
+  info.then((result) => {
+    catchPokemon(req.params.id, "result", "nitsan");
+    res.send(req.params.id);
+  });
+  info.catch(() => {
+    res.status(404);
+    res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
+  });
+});
+
+//catchPokemon(parseInt(id), user);
+const fs = require("fs");
+
+catchPokemon(2425, "{json}", "aviv");
+
+function catchPokemon(id, info, user) {
+  fs.writeFileSync(`./users/${user}/${id}.txt`, info);
+}
+fs.writeFileSync("./users/aviv/25.txt", "valu");
 app.use(function (err, req, res, next) {
   console.error(err.stack);
   res.status(500).send("Something broke!");
