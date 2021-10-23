@@ -32,15 +32,17 @@ app.get("/pokemon/:query", async (req, res) => {
     res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
   });
 });
-app.put("/pokemon/catch/:id", async (req, res) => {
-  let info = getPokemonByNameFromAPI(req.params.query);
+app.put("/pokemon/catch/:id/:user", async (req, res) => {
+  const { id, user } = req.params;
+  let info = getPokemonByNameFromAPI(id);
   info.then((result) => {
-    catchPokemon(req.params.id, "result", "nitsan");
-    res.send(req.params.id);
+    //console.log();
+    catchPokemon(id, JSON.stringify(result), user);
+    res.send(id);
   });
   info.catch(() => {
     res.status(404);
-    res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
+    res.send(`404 - not found pokemon with the id/name of ${id}`);
   });
 });
 
