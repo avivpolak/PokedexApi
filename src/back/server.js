@@ -2,7 +2,7 @@
 const fs = require("fs");
 const express = require("express");
 const app = express();
-const port = 4000;
+const port = 3000;
 const Pokedex = require("pokedex-promise-v2");
 const P = new Pokedex();
 
@@ -11,7 +11,7 @@ app.get("/", function (req, res) {
   res.send("hello world!");
 });
 
-app.get("/pokemon/:user", async (req, res) => {
+app.get("/pokemon/users/:user", async (req, res) => {
   const user = req.params.user;
   let list = getListOfPokemons(user);
   res.send(list);
@@ -22,6 +22,7 @@ app.get("/pokemon/get/:id", async (req, res) => {
     res.send(result);
   });
   info.catch(() => {
+    //app.next(new Error("a error"));
     res.status(404);
     res.send(`404 - not found pokemon with the id/name of ${parseInt(req.params.id)}`);
   });
@@ -33,6 +34,7 @@ app.get("/pokemon/:query", async (req, res) => {
     res.send(result);
   });
   info.catch(() => {
+    console.log("opoi");
     res.status(404);
     res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
   });
@@ -64,10 +66,14 @@ app.delete("/pokemon/relese/:user/:id", async (req, res) => {
     res.send(`404 - not found pokemon with the id/name of ${id}`);
   });
 });
-
+app.use((req, res, next) => {
+  return next(new Error("a error wrewe"));
+});
 app.use(function (err, req, res, next) {
-  // console.error(err.stack);
-  // res.status(500).send("Something broke!");
+  res.locals.message = err.message;
+  const status = err.status || 500;
+  res.locals.status = status;
+  res.render("../error");
 });
 // start the server
 app.listen(port, function () {
