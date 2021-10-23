@@ -60,9 +60,23 @@ app.delete("/pokemon/relese/:user/:id", async (req, res) => {
   });
 });
 
+app.get("/pokemon/:user/", async (req, res) => {
+  const user = req.params.user;
+  let list = getListOfPokemons(user);
+  list.then((result) => {
+    // console.log(id, JSON.stringify(result), user);
+    // //relesePokemon(id, user);
+    // res.send(id);
+  });
+  info.catch(() => {
+    res.status(404);
+    res.send(`404 - not found pokemon with the id/name of ${id}`);
+  });
+});
+
 app.use(function (err, req, res, next) {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
+  // console.error(err.stack);
+  // res.status(500).send("Something broke!");
 });
 // start the server
 app.listen(port, function () {
