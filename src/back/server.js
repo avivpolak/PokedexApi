@@ -32,12 +32,26 @@ app.get("/pokemon/:query", async (req, res) => {
     res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
   });
 });
-app.put("/pokemon/catch/:id/:user", async (req, res) => {
-  const { id, user } = req.params;
+app.put("/pokemon/catch/:user/:id", async (req, res) => {
+  const { user, id } = req.params;
   let info = getPokemonByNameFromAPI(id);
   info.then((result) => {
     //console.log();
     catchPokemon(id, JSON.stringify(result), user);
+    res.send(id);
+  });
+  info.catch(() => {
+    res.status(404);
+    res.send(`404 - not found pokemon with the id/name of ${id}`);
+  });
+});
+
+app.delete("/pokemon/relese/:user/:id", async (req, res) => {
+  const { user, id } = req.params;
+  let info = getPokemonByNameFromAPI(id);
+  info.then((result) => {
+    console.log(id, JSON.stringify(result), user);
+    relesePokemon(id, user);
     res.send(id);
   });
   info.catch(() => {
@@ -90,10 +104,10 @@ function GetAbilities(abilities) {
   return rAbilities;
 }
 
-catchPokemon(2425, "{json}", "aviv");
-
 function catchPokemon(id, info, user) {
   fs.writeFileSync(`./users/${user}/${id}.txt`, info);
 }
 
-fs.writeFileSync("./users/aviv/25.txt", "valu");
+function relesePokemon(id, user) {
+  fs.unlinkSync(`./users/${user}/${id}.txt`);
+}
