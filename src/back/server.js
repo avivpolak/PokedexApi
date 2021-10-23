@@ -6,6 +6,10 @@ const port = 3000;
 const Pokedex = require("pokedex-promise-v2");
 const { networkInterfaces } = require("os");
 const P = new Pokedex();
+const errorHandler = require("../middleware/errorHandler");
+const pokemonRouter = require("./routers/pokemonRouter");
+const errorHandler = require("../middleware/errorHandler");
+app.use("/pokemon", pokemonRouter);
 
 // route our app
 app.get("/", function (req, res) {
@@ -18,8 +22,7 @@ app.get("/pokemon/users/:user", async (req, res) => {
     let list = getListOfPokemons(user);
     res.send(list);
   } catch {
-    errorHandler(404, res);
-    res.send(`user ${user} not found`);
+    errorHandler(401, res);
   }
 });
 app.get("/pokemon/get/:id", async (req, res) => {
@@ -28,9 +31,7 @@ app.get("/pokemon/get/:id", async (req, res) => {
     res.send(result);
   });
   info.catch(() => {
-    //app.next(new Error("a error"));
-    res.status(404);
-    res.send(`404 - not found pokemon with the id/name of ${parseInt(req.params.id)}`);
+    errorHandler(404, res);
   });
 });
 
@@ -40,47 +41,62 @@ app.get("/pokemon/:query", async (req, res) => {
     res.send(result);
   });
   info.catch(() => {
-    console.log("opoi");
-    res.status(404);
-    res.send(`404 - not found pokemon with the id/name of ${req.params.query}`);
+    errorHandler(404, res);
   });
 });
 app.put("/pokemon/catch/:user/:id", async (req, res) => {
   const { user, id } = req.params;
   let info = getPokemonByNameFromAPI(id);
   info.then((result) => {
-    //console.log();
+    if (validate)
+      try {
+        catchPokemon(id, JSON.stringify(result), user);
+      } catch {
+        errorHandler(403, res);
+      }
+    else {
+      errorHandler(403, res);
+    }
     catchPokemon(id, JSON.stringify(result), user);
     res.send(id);
   });
   info.catch(() => {
-    res.status(404);
-    res.send(`404 - not found pokemon with the id/name of ${id}`);
+    errorHandler(404, res);
   });
 });
 
 app.delete("/pokemon/relese/:user/:id", async (req, res) => {
   const { user, id } = req.params;
+
   let info = getPokemonByNameFromAPI(id);
   info.then((result) => {
-    console.log(id, JSON.stringify(result), user);
-    relesePokemon(id, user);
+    try {
+      relesePokemon(id, user);
+    } catch {
+      errorHandler(403, res);
+    }
+
     res.send(id);
   });
   info.catch(() => {
-    res.status(404);
-    res.send(`404 - not found pokemon with the id/name of ${id}`);
+    errorHandler(404, res);
   });
 });
 app.use((req, res, next) => {
   return next(new Error("a error wrewe"));
 });
-app.use(function (err, req, res, next) {
-  res.locals.message = err.message;
-  const status = err.status || 500;
-  res.locals.status = status;
-  res.render("../error");
-});
+
+app.use(errorHandler);
+
+// app.use(function (err, req, res, next) {
+
+//   errorHandler()
+
+//   res.locals.message = err.message;
+//   const status = err.status || 500;
+//   res.locals.status = status;
+//   res.render("../error");
+// });
 // start the server
 app.listen(port, function () {
   console.log("app started");
@@ -136,9 +152,9 @@ function GetAbilities(abilities) {
 }
 
 function catchPokemon(id, info, user) {
-  fs.writeFileSync(`./users/${user}/${id}.txt`, info);
+  fs.writeFileSync(`./users/${user}/${id}.json`, info);
 }
 
 function relesePokemon(id, user) {
-  fs.unlinkSync(`./users/${user}/${id}.txt`);
+  fs.unlinkSync(`./users/${user}/${id}.json`);
 }
