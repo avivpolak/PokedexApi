@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const Pokedex = require("pokedex-promise-v2");
+const { networkInterfaces } = require("os");
 const P = new Pokedex();
 
 // route our app
@@ -12,9 +13,14 @@ app.get("/", function (req, res) {
 });
 
 app.get("/pokemon/users/:user", async (req, res) => {
-  const user = req.params.user;
-  let list = getListOfPokemons(user);
-  res.send(list);
+  try {
+    const user = req.params.user;
+    let list = getListOfPokemons(user);
+    res.send(list);
+  } catch {
+    errorHandler(404, res);
+    res.send(`user ${user} not found`);
+  }
 });
 app.get("/pokemon/get/:id", async (req, res) => {
   let info = getPokemonByNameFromAPI(parseInt(req.params.id));
@@ -82,14 +88,20 @@ app.listen(port, function () {
 
 //functions
 function getListOfPokemons(user) {
-  let returnedList = [];
-  let list = fs.readdirSync(`./users/${user}`);
-  for (let item of list) {
-    returnedList.push(fs.readFileSync(`./users//${user}/${item}`).toString());
+  try {
+    console.log("get list of pokemons");
+    let returnedList = [];
+    let list = fs.readdirSync(`./users/${user}`);
+    for (let item of list) {
+      returnedList.push(fs.readFileSync(`./users/${user}/${item}`).toString());
+    }
+    console.log(returnedList);
+    return returnedList;
+  } catch (err) {
+    throw new Error(`user ${user} not found`);
   }
-  return returnedList;
 }
-getListOfPokemons("aviv");
+
 async function getPokemonByNameFromAPI(name) {
   return await P.getPokemonByName(name)
     .then(function (response) {
