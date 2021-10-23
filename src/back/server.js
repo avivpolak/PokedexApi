@@ -11,6 +11,11 @@ app.get("/", function (req, res) {
   res.send("hello world!");
 });
 
+app.get("/pokemon/:user", async (req, res) => {
+  const user = req.params.user;
+  let list = getListOfPokemons(user);
+  res.send(list);
+});
 app.get("/pokemon/get/:id", async (req, res) => {
   let info = getPokemonByNameFromAPI(parseInt(req.params.id));
   info.then((result) => {
@@ -60,20 +65,6 @@ app.delete("/pokemon/relese/:user/:id", async (req, res) => {
   });
 });
 
-app.get("/pokemon/:user/", async (req, res) => {
-  const user = req.params.user;
-  let list = getListOfPokemons(user);
-  list.then((result) => {
-    // console.log(id, JSON.stringify(result), user);
-    // //relesePokemon(id, user);
-    // res.send(id);
-  });
-  info.catch(() => {
-    res.status(404);
-    res.send(`404 - not found pokemon with the id/name of ${id}`);
-  });
-});
-
 app.use(function (err, req, res, next) {
   // console.error(err.stack);
   // res.status(500).send("Something broke!");
@@ -84,7 +75,15 @@ app.listen(port, function () {
 });
 
 //functions
-
+function getListOfPokemons(user) {
+  let returnedList = [];
+  let list = fs.readdirSync(`./users/${user}`);
+  for (let item of list) {
+    returnedList.push(fs.readFileSync(`./users//${user}/${item}`).toString());
+  }
+  return returnedList;
+}
+getListOfPokemons("aviv");
 async function getPokemonByNameFromAPI(name) {
   return await P.getPokemonByName(name)
     .then(function (response) {
