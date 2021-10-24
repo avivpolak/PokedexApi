@@ -94,6 +94,12 @@ function relesePokemon(id, user) {
     }
     fs.unlink(`./users/${user}/${id}.json`);
 }
+function userNameExist(user) {
+    return fs.existsSync(`./users/${user}`);
+}
+function createNewUserDir(user) {
+    fs.mkdirSync(`./users/${user}`);
+}
 
 module.exports = {
     getUser,
@@ -103,4 +109,6 @@ module.exports = {
     Gettypes,
     getPokemonByNameFromAPI,
     getListOfPokemons,
+    userNameExist,
+    createNewUserDir,
 };

@@ -5,7 +5,9 @@ const app = express();
 const port = 3000;
 const pokemonRouter = require("./routers/pokemonRouter");
 const userRouter = require("./routers/userRouter");
+const userMiddleware = require("../middleware/userHandler");
 
+app.use(userMiddleware);
 app.use("/pokemon", pokemonRouter);
 app.use("/user", userRouter);
 
