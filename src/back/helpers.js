@@ -54,7 +54,7 @@ function GetAbilities(abilities) {
     return rAbilities;
 }
 
-function catchPokemon(id, info, user) {
+function ccatchPokemon(id, info, user) {
     try {
         fs.writeFileSync(`./users/${user}/${id}.json`, info);
     } catch {
@@ -63,23 +63,66 @@ function catchPokemon(id, info, user) {
         throw err;
     }
 }
-
+function catchPokemon(id, info, user) {
+    let err = new Error();
+    if (!fs.existsSync(`./users/${user}`)) {
+        err.message = "user not found";
+        err.code = "401";
+        throw err;
+    }
+    if (fs.existsSync(`./users/${user}/${id}.json`)) {
+        err.message = "trying to catch an already cought pokemon";
+        err.code = "403";
+        throw err;
+    }
+    fs.writeFileSync(`./users/${user}/${id}.json`, info);
+}
+// function relesePokemon(id, user){
+//     fs.exists(`./users/${user}`,(e)=>{
+//         if(e){}
+//     })
+// }
 function relesePokemon(id, user) {
-    fs.readdir(`./users/${user}`, (err, data) => {
-        if (!data) {
-            let err = new Error("user not found");
-            err.code = "401";
-            throw err;
-        } else {
-            if (data.includes(`${id}.json`)) {
-                fs.unlink(`./users/${user}/${id}.json`);
-            } else {
-                let err = new Error("trying to reles an uncought pokemon");
-                err.code = "403";
+    let err = new Error();
+    if (!fs.existsSync(`./users/${user}`)) {
+        err.message = "user not found";
+        err.code = "401";
+        throw err;
+    }
+    if (!fs.existsSync(`./users/${user}/${id}.json`)) {
+        err.message = "trying to relese an uncought pokemon";
+        err.code = "403";
+        throw err;
+    }
+    fs.unlink(`./users/${user}/${id}.json`);
+}
+
+function drelesePokemon(id, user) {
+    try {
+        fs.readdir(`./users/${user}`, (err, data) => {
+            try {
+                if (!data) {
+                    let err = new Error("user not found");
+                    err.code = "401";
+                    throw err;
+                } else {
+                    if (data.includes(`${id}.json`)) {
+                        fs.unlink(`./users/${user}/${id}.json`);
+                    } else {
+                        let err = new Error(
+                            "trying to reles an uncought pokemon"
+                        );
+                        err.code = "403";
+                        throw err;
+                    }
+                }
+            } catch (err) {
                 throw err;
             }
-        }
-    });
+        });
+    } catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

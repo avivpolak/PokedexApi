@@ -37,33 +37,23 @@ pokemonRouter.get("/:query", async (req, res) => {
     });
 });
 pokemonRouter.put("/catch/:user/:id", async (req, res, next) => {
-    console.log("blablabla");
     const { user, id } = req.params;
     try {
         let result = await helpers.getPokemonByNameFromAPI(id);
-
-        try {
-            helpers.catchPokemon(id, JSON.stringify(result), user);
-        } catch (err) {
-            console.log("blabla");
-            next(err, req, res);
-        }
         helpers.catchPokemon(id, JSON.stringify(result), user);
         res.send(id);
     } catch (err) {
-        console.log("bla");
-        next(err, req, res);
+        next(err);
     }
 });
 
 pokemonRouter.delete("/relese/:user/:id", async (req, res, next) => {
-    const { user, id } = req.params;
     try {
+        const { user, id } = req.params;
         helpers.relesePokemon(id, user);
         res.send(id);
     } catch (err) {
-        console.log(`${err.code || 500} | ${err.message}`);
-        next(err, req, res); //should work!
+        next(err);
     }
 });
 module.exports = pokemonRouter;

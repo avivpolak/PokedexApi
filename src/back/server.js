@@ -17,9 +17,10 @@ app.use("/pokemon", pokemonRouter);
 // route our app
 
 app.use(function (err, req, res, next) {
-    if (!err.code)
-        //err.message = "server error"; ---------------------------------------------------------------------<un-comment in the end
-        res.status(err.code || 500).send(`${err.code || 500} | ${err.message}`);
+    // if (!err.code) {
+    //     err.message = "server error";
+    // }
+    res.status(err.code || 500).send(`${err.code || 500} | ${err.message}`);
 });
 
 //app.use(errorHandler);
