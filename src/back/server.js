@@ -6,7 +6,7 @@ const port = 3000;
 const Pokedex = require("pokedex-promise-v2");
 const { networkInterfaces } = require("os");
 const P = new Pokedex();
-const errorHandler = require("../middleware/errorHandler");
+//const errorHandler = require("../middleware/errorHandler");
 const pokemonRouter = require("./routers/pokemonRouter");
 
 app.get("/", function (req, res) {
@@ -17,10 +17,12 @@ app.use("/pokemon", pokemonRouter);
 // route our app
 
 app.use(function (err, req, res, next) {
-    res.status(err.code).send(`${err.code} | ${err.message}`);
+    if (!err.code)
+        //err.message = "server error"; ---------------------------------------------------------------------<un-comment in the end
+        res.status(err.code || 500).send(`${err.code || 500} | ${err.message}`);
 });
 
-app.use(errorHandler);
+//app.use(errorHandler);
 app.listen(port, function () {
     console.log("app started");
 });

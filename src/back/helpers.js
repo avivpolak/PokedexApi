@@ -1,10 +1,10 @@
 const Pokedex = require("pokedex-promise-v2");
 const { networkInterfaces } = require("os");
 const P = new Pokedex();
+const fs = require("fs");
 
 function getListOfPokemons(user) {
     try {
-        console.log("get list of pokemons");
         let returnedList = [];
         let list = fs.readdirSync(`./users/${user}`);
         for (let item of list) {
@@ -12,10 +12,11 @@ function getListOfPokemons(user) {
                 fs.readFileSync(`./users/${user}/${item}`).toString()
             );
         }
-        console.log(returnedList);
         return returnedList;
-    } catch (err) {
-        throw new Error(`user ${user} not found`);
+    } catch {
+        let err = new Error("user not found");
+        err.code = "401";
+        throw err;
     }
 }
 
@@ -54,11 +55,31 @@ function GetAbilities(abilities) {
 }
 
 function catchPokemon(id, info, user) {
-    fs.writeFileSync(`./users/${user}/${id}.json`, info);
+    try {
+        fs.writeFileSync(`./users/${user}/${id}.json`, info);
+    } catch {
+        let err = new Error("user not found");
+        err.code = "401";
+        throw err;
+    }
 }
 
 function relesePokemon(id, user) {
-    fs.unlinkSync(`./users/${user}/${id}.json`);
+    fs.readdir(`./users/${user}`, (err, data) => {
+        if (!data) {
+            let err = new Error("user not found");
+            err.code = "401";
+            throw err;
+        } else {
+            if (data.includes(`${id}.json`)) {
+                fs.unlink(`./users/${user}/${id}.json`);
+            } else {
+                let err = new Error("trying to reles an uncought pokemon");
+                err.code = "403";
+                throw err;
+            }
+        }
+    });
 }
 
 module.exports = {

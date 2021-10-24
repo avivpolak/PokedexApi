@@ -26,4 +26,4 @@ const errorHandler = async (error, request, response) => {
     //         break;
     // }
 };
-module.exports = errorHandler;
+//module.exports = errorHandler;
