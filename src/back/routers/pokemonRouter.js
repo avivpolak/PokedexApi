@@ -3,19 +3,17 @@
 const express = require("express");
 const pokemonRouter = express.Router();
 const helpers = require("../helpers");
-//const errorHandler = require("../../middleware/errorHandler");
-const e = require("express");
 
 pokemonRouter.get("/users/:user", async (req, res, next) => {
-    console.log("sdfsdfsdf");
     try {
         const user = req.params.user;
         let list = helpers.getListOfPokemons(user);
         res.send(list);
     } catch (err) {
-        next(err, req, res);
+        next(err);
     }
 });
+
 pokemonRouter.get("/get/:id", async (req, res, next) => {
     try {
         let info = await helpers.getPokemonByNameFromAPI(
@@ -23,19 +21,19 @@ pokemonRouter.get("/get/:id", async (req, res, next) => {
         );
         res.send(info);
     } catch (err) {
-        next(err, req, res);
+        next(err);
     }
 });
 
-pokemonRouter.get("/:query", async (req, res) => {
-    let info = helpers.getPokemonByNameFromAPI(req.params.query);
-    info.then((result) => {
-        res.send(result);
-    });
-    info.catch(() => {
-        errorHandler(404, res);
-    });
+pokemonRouter.get("/:query", async (req, res, next) => {
+    try {
+        let info = await helpers.getPokemonByNameFromAPI(req.params.query);
+        res.send(info);
+    } catch (err) {
+        next(err);
+    }
 });
+
 pokemonRouter.put("/catch/:user/:id", async (req, res, next) => {
     const { user, id } = req.params;
     try {
@@ -56,4 +54,5 @@ pokemonRouter.delete("/relese/:user/:id", async (req, res, next) => {
         next(err);
     }
 });
+
 module.exports = pokemonRouter;
