@@ -52,6 +52,9 @@ app.put("/pokemon/catch/:user/:id", async (req, res) => {
       try {
         catchPokemon(id, JSON.stringify(result), user);
       } catch {
+        const error = new Error("couldent");
+        error.code = 401;
+        throw new Error("couldent");
         errorHandler(403, res);
       }
     else {
