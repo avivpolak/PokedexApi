@@ -33,7 +33,9 @@ async function getPokemonByNameFromAPI(name) {
         };
         return info;
     } catch {
-        throw new Error("404");
+        let err = new Error("cant find this pokemon");
+        err.code = 404;
+        throw err;
     }
 }
 function Gettypes(types) {

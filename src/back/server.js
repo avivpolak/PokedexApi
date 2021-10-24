@@ -16,6 +16,10 @@ app.use("/pokemon", pokemonRouter);
 
 // route our app
 
+app.use(function (err, req, res, next) {
+    res.status(err.code).send(`${err.code} | ${err.message}`);
+});
+
 app.use(errorHandler);
 app.listen(port, function () {
     console.log("app started");
