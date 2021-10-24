@@ -1,12 +1,17 @@
 const helpers = require("../back/helpers");
 
 const userMiddleware = function (request, response, next) {
-    const { username } = request.headers.username;
-    console.log(username);
-    if (username && helpers.userNameExist(username)) {
+    try {
+        const username = request.headers.username;
+        if (username && helpers.userNameExist(username)) {
+            next();
+        }
+        helpers.createNewUserDir(username);
         next();
+    } catch {
+        let err = new Error("already exsist");
+        err.code = 403;
+        next(err);
     }
-    helpers.createNewUserDir(username);
-    next();
 };
 module.exports = userMiddleware;
